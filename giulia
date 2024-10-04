@@ -1,0 +1,82 @@
+import sqlite3
+
+# Criação da conexão com o banco de dados
+def criar_conexao():
+    return sqlite3.connect('lucio_castro_advogados.db')
+
+# Função para criar as tabelas no banco de dados
+def criar_tabelas(cursor):
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS clientes (
+        id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        cpf TEXT NOT NULL,
+        telefone TEXT
+    )
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS advogados (
+        id_advogado INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        oab TEXT NOT NULL
+    )
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS casos (
+        id_caso INTEGER PRIMARY KEY AUTOINCREMENT,
+        descricao TEXT NOT NULL,
+        id_cliente INTEGER,
+        id_advogado INTEGER,
+        data_prazo TEXT,
+        FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+        FOREIGN KEY (id_advogado) REFERENCES advogados(id_advogado)
+    )
+    ''')
+
+# Função para adicionar um cliente
+def adicionar_cliente(cursor, nome, cpf, telefone):
+    cursor.execute('''
+    INSERT INTO clientes (nome, cpf, telefone)
+    VALUES (?, ?, ?)
+    ''', (nome, cpf, telefone))
+    print(f"Cliente '{nome}' adicionado com sucesso.")
+
+# Função para adicionar um advogado
+def adicionar_advogado(cursor, nome, oab):
+    cursor.execute('''
+    INSERT INTO advogados (nome, oab)
+    VALUES (?, ?)
+    ''', (nome, oab))
+    print(f"Advogado '{nome}' adicionado com sucesso.")
+
+# Função para adicionar um caso
+def adicionar_caso(cursor, descricao, id_cliente, id_advogado, data_prazo):
+    cursor.execute('''
+    INSERT INTO casos (descricao, id_cliente, id_advogado, data_prazo)
+    VALUES (?, ?, ?, ?)
+    ''', (descricao, id_cliente, id_advogado, data_prazo))
+    print(f"Caso '{descricao}' adicionado com sucesso.")
+
+# Função principal para executar o script
+def main():
+    # Conectar ao banco de dados
+    conexao = criar_conexao()
+    cursor = conexao.cursor()
+
+    # Criar as tabelas necessárias
+    criar_tabelas(cursor)
+
+    # Adicionar alguns dados de exemplo
+    adicionar_cliente(cursor, 'João da Silva', '123.456.789-00', '99999-9999')
+    adicionar_advogado(cursor, 'Dra. Maria Oliveira', 'OAB123456')
+    adicionar_caso(cursor, 'Ação trabalhista', 1, 1, '2024-12-01')
+
+    # Salvar as alterações e fechar a conexão
+    conexao.commit()
+    conexao.close()
+
+# Executar a função principal
+if _name_ == "_main_":
+    main()
